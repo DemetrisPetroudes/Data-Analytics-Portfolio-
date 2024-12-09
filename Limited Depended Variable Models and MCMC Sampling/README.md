@@ -7,7 +7,7 @@ The objective is to program posterior simulation methods from scratch and apply 
 
 ## Project Overview
 
-The assignment focuses on:
+The project focuses on:
 - Implementing a **Gibbs sampler** for the Probit model.
 - Implementing the **Metropolis-Hastings algorithm** for the Logit model.
 - Applying these models to real-world datasets:
