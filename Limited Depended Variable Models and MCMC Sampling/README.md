@@ -47,19 +47,13 @@ Since the posterior cannot be simplified for direct sampling, a **Metropolis-Has
    - Generate proposals using the proposal distribution g(β), and accept/reject based on the Metropolis-Hastings criterion.
 3. Apply the algorithm to the dataset `mroz.csv`.
 4. Analyze posterior distributions and comment on results.
-
+5. Tune \( \tau \) to achieve an optimal acceptance rate.
+6. Apply the Metropolis-Hastings algorithm to the dataset `mroz.csv`.
+7. Analyze convergence and posterior estimates of the parameters.
 
 ---
 
 ## Datasets
 - **`loanapp.csv`**: Contains data on mortgage applications. Outcome variable: `approve`. Covariates include housing expenditures, loan amount, unemployment rate, number of dependents, and more.
 - **`mroz.csv`**: Contains data on female labor market participation. Outcome variable: `inlf`. Covariates include education level, experience, age, and number of children.
-
-
-
-5. Tune \( \tau \) to achieve an optimal acceptance rate.
-
-6. Apply the Metropolis-Hastings algorithm to the dataset `mroz.csv`.
-
-7. Analyze convergence and posterior estimates of the parameters.
 
