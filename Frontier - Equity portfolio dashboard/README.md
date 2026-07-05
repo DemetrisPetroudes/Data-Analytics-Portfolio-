@@ -1,11 +1,13 @@
 # Frontier
 
+LAUNCH THE DASHBOARD LIVE HERE: https://huggingface.co/spaces/dpetro05/Frontier
+
 An S&P 500 portfolio optimization, risk, and forecasting dashboard built with Plotly Dash.
 
 Frontier is a single-file Python application for building a weighted equity portfolio from
 S&P 500 large caps and analyzing its risk, return, optimal allocation, and forward-looking
 behavior on a dark Bootstrap theme. The name refers to the efficient frontier that sits at
-the center of the optimizer. All market data is pulled from Yahoo Finance at runtime; no
+the center of the optimizer. All market data is pulled from Yahoo Finance at runtime with no
 accounts or API keys are required.
 
 ![Frontier dashboard demo](dashboard_demo.gif)
