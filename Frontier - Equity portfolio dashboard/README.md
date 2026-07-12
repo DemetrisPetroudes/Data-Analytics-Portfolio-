@@ -1,24 +1,30 @@
 # Frontier
 
-LAUNCH THE DASHBOARD LIVE HERE: https://huggingface.co/spaces/dpetro05/Frontier
-
 An S&P 500 portfolio optimization, risk, and forecasting dashboard built with Plotly Dash.
 
 Frontier is a single-file Python application for building a weighted equity portfolio from
 S&P 500 large caps and analyzing its risk, return, optimal allocation, and forward-looking
-behavior on a dark Bootstrap theme. The name refers to the efficient frontier that sits at
-the center of the optimizer. All market data is pulled from Yahoo Finance at runtime with no
-accounts or API keys are required.
+behavior. The name refers to the efficient frontier at the center of the optimizer.
 
-![Frontier dashboard demo](dashboard_demo.gif)
+**Live demo:** add your Hugging Face Space URL here
+
+<!--
+DEMO VIDEO
+Delete this comment block, then edit this README on github.com and drag
+dashboard_demo.mp4 into the editor. GitHub uploads the file and inserts an inline
+video player automatically. Markdown image syntax does not work for MP4 files, so
+the drag-and-drop step is required.
+-->
 
 ## Overview
 
 Frontier models a portfolio as a set of tickers with percentage weights and a total
-notional value. You assemble it on the Builder tab, and four analytics views then
-compute exposures, historical performance against the S&P 500, a mean-variance optimal
-allocation, and a Monte Carlo forecast with historical stress tests. Everything runs
-locally.
+notional value. You assemble it on the Builder tab, and three analytics views then compute
+exposures and risk, an optimal allocation, and a forward-looking simulation with
+historical stress tests.
+
+A built-in Start Guide walks through every tab and explains the models and the intuition
+behind them, so the dashboard is usable without prior background in portfolio theory.
 
 ## Features
 
@@ -26,72 +32,99 @@ locally.
 - Choose from roughly 200 large-cap US tickers spanning all sectors.
 - Assign a percentage weight to each position; an editable table holds the working portfolio.
 - Live total-weight indicator and one-click normalization to 100%.
-- Set the total portfolio value, save to disk (`portfolio.json`), and launch the analytics.
+- Set the total portfolio value, save the portfolio, and launch the analytics.
 
 ### Overview
-- Summary cards for annualized return and volatility, Sharpe, Sortino, Calmar,
-  VaR(95%), CVaR(95%), Information Ratio, Omega, beta, and maximum drawdown.
-- Allocation donuts by weight, sector, and country/currency. Sector and country are read
-  from per-instrument metadata.
-- Cumulative return against the S&P 500, normalized to a common base of 100.
-- Per-position detail table.
+- Summary cards for portfolio value, day change, annualized volatility, and position count,
+  with a 6M / 1Y / 3Y toggle that switches the backtest window for the cards and the
+  cumulative return chart.
+- Full risk suite on the 36-month window: Sharpe, Sortino, Calmar, VaR(95%), CVaR(95%),
+  Information Ratio, Omega, Blume-adjusted beta, and maximum drawdown.
+- Allocation donuts by weight, sector, and country or currency.
+- Cumulative return against the S&P 500 Total Return index, normalized to a common base
+  of 100.
+- Position detail table with trailing 1M, 6M, 1Y and 3Y returns per holding, plus each
+  position's annualized volatility and Blume-adjusted beta.
 
 ### Optimizer
-- Markowitz mean-variance optimization via sequential least-squares (SLSQP), long-only
-  and fully invested.
+- Markowitz mean-variance optimization via sequential least-squares (SLSQP), long-only and
+  fully invested, with configurable minimum and maximum position weights.
 - Objectives: maximize Sharpe, minimize volatility, or maximize Sortino.
+- Estimation-noise controls: Ledoit-Wolf shrinkage of the covariance matrix and
+  James-Stein-style shrinkage of mean returns toward the cross-sectional average.
 - Efficient frontier drawn from 10,000 random long-only portfolios with the optimized
-  frontier overlaid.
-- Six risk-profile presets, from Ultra-Defensive to Ultra-Aggressive, each defining a
-  target beta, Sharpe, drawdown, volatility, Calmar, and VaR.
+  point overlaid.
+- Six risk-profile presets, from Ultra-Defensive to Ultra-Aggressive, each defining target
+  beta, Sharpe, drawdown, volatility, Calmar, and VaR.
 
 ### Forecasting and Scenario Analysis
-- Monte Carlo simulation of portfolio value under geometric Brownian motion, with
-  per-asset volatility seeded from a GARCH(1,1) fit.
-- Configurable horizon (21 to 1260 trading days) and path count (10,000 to 200,000),
-  with selectable confidence bands.
-- Fan chart and terminal-value summary statistics.
-- Historical scenario replay across seven stress windows: the 2008 global financial
-  crisis, the 2010 flash crash, the 2011 European debt crisis, the 2015-16 China
-  slowdown, the Q4 2018 selloff, the 2020 COVID crash, and the 2022 rate-hike bear
-  market.
+- Monte Carlo simulation of portfolio value with a simulated GARCH(1,1) conditional
+  variance path, preserving volatility clustering and mean reversion rather than assuming
+  constant volatility.
+- Student-t(5) shocks, standardized to unit variance, for fat tails without inflating the
+  calibrated volatility.
+- Configurable horizon (21 to 1260 trading days) and path count (10,000 to 200,000), with
+  selectable confidence bands, a fan chart, and terminal-value statistics.
+- Historical scenario replay across seven stress windows: the 2008 global financial crisis,
+  the 2010 flash crash, the 2011 European debt crisis, the 2015-16 China slowdown, the
+  Q4 2018 selloff, the 2020 COVID crash, and the 2022 rate-hike bear market.
 
 ## Methodology
 
-The estimators are kept transparent so the numbers are easy to check against a textbook.
+**Data window.** All estimates use 36 months of daily closing prices, adjusted for
+dividends and splits. Three years balances two failure modes: shorter windows turn tail
+metrics such as VaR into statistical noise, while much longer windows average across
+regimes that no longer describe the market. The Overview toggle shortens the *performance*
+backtest to 6 or 12 months on request, but the risk metrics deliberately remain on the
+full window.
 
-**Returns and risk.** Daily simple returns are annualized on a 252-day convention.
-Volatility is the annualized standard deviation of daily returns. Beta is the covariance
-of portfolio and benchmark returns over the benchmark variance. Downside deviation, used
-for Sortino, considers only negative returns. VaR(95%) is the empirical 5th percentile of
-the daily return distribution, and CVaR(95%) is the mean loss beyond it. Calmar is
-annualized return over the absolute maximum drawdown. The benchmark is the S&P 500
-(`^GSPC`) and the risk-free rate is taken from the 13-week US Treasury bill (`^IRX`).
+**Benchmark.** The benchmark is the S&P 500 Total Return index (`^SP500TR`). Holdings are
+dividend-adjusted, so the benchmark must be as well; comparing against the price-only index
+would overstate relative performance by roughly the dividend yield every year. The
+risk-free rate is taken from the 13-week US Treasury bill (`^IRX`).
 
-**Volatility model.** For the forecast, each asset's conditional volatility is estimated
-with a GARCH(1,1) model using the `arch` package and annualized for use in the
-simulation.
+**Returns.** Annualized returns are geometric, meaning the constant compound rate that
+reproduces the realized end value. Annualizing the arithmetic mean of daily returns
+systematically overstates growth under volatility, so the geometric convention is applied
+consistently, including as the drift of the Monte Carlo.
 
-**Monte Carlo.** Paths follow geometric Brownian motion with the Ito drift correction,
-so the per-step log drift is `(mu - 0.5 * sigma^2) * dt`. Log returns are accumulated and
-exponentiated to produce price paths. Generation is chunked under a fixed memory budget,
-so large path counts reduce the effective count rather than exhausting memory.
+**Risk metrics.** Volatility is the annualized standard deviation of daily returns.
+Sortino replaces total volatility with downside deviation. Calmar divides annualized
+return by the absolute maximum drawdown of the window. VaR(95%) is the empirical 5th
+percentile of the daily return distribution, and CVaR(95%) is the mean loss beyond it;
+CVaR is the coherent of the two and is reported alongside. Beta is the sample covariance
+of portfolio and benchmark returns over benchmark variance, then Blume-adjusted (shrunk one
+third of the way toward 1) to counter the noise of daily-frequency betas, with the raw
+sample beta reported for transparency.
+
+**Volatility model.** Portfolio conditional variance is modeled with GARCH(1,1) using the
+`arch` package. The fitted dynamics (omega, alpha, beta, and the current conditional
+variance) are simulated forward inside the Monte Carlo rather than collapsed into a single
+point forecast, so the simulation reproduces the volatility clustering and mean reversion
+GARCH actually models. Non-stationary or failed fits fall back to constant volatility, and
+the chart title states which model produced the paths.
+
+**Monte Carlo.** Daily log returns are simulated as a constant log drift plus a
+GARCH-driven stochastic volatility term with standardized Student-t(5) shocks. The drift is
+anchored to the realized geometric return, which is the Ito-consistent choice, so the
+median simulated path compounds at the same rate the Overview reports. Path generation is
+chunked under a fixed memory budget, so large path counts reduce the effective count
+rather than exhausting memory.
 
 **Optimization.** The efficient frontier is approximated by sampling random long-only
-weight vectors, and the optimal portfolio is found with constrained numerical
-optimization (weights non-negative and summing to one) for the chosen objective.
-
-**A note on conventions.** This build uses empirical sample estimators for means and
-covariances. That is the standard textbook approach and keeps the logic legible, but
-sample means in particular are noisy inputs to optimization. A variant using covariance
-and mean shrinkage (Ledoit-Wolf, James-Stein) is maintained separately for a more
-institutional treatment.
+weight vectors, and the optimal portfolio is found by constrained numerical optimization
+for the chosen objective. The optimizer works in standard mean-variance space, which is
+defined on arithmetic moments, and the frontier axis is labeled with that convention
+explicitly. Its inputs are shrunk (Ledoit-Wolf covariance, James-Stein means) because naive
+mean-variance amplifies estimation error, loading weight onto whatever performed best
+in-sample.
 
 ## Tech stack
 
 Python with Plotly Dash and dash-bootstrap-components for the interface, pandas and NumPy
-for data handling, SciPy for optimization, `arch` for the GARCH model, and yfinance for
-market data. The application is a single file, `app.py`.
+for data handling, SciPy for optimization, scikit-learn for the Ledoit-Wolf covariance
+estimator, `arch` for the GARCH model, and yfinance for market data. The application is a
+single file, `app.py`.
 
 ## Quick start
 
@@ -105,27 +138,59 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The app opens at http://127.0.0.1:8050 automatically. See `RUNNING.md` for full setup
-steps, a first-run walkthrough, and troubleshooting.
+The app opens at http://127.0.0.1:8050 automatically and fetches live data from Yahoo
+Finance. No accounts or API keys are required. See `RUNNING.md` for full setup steps, a
+first-run walkthrough, and troubleshooting.
 
-## Data and persistence
+## Deployment
 
-Market data is retrieved at runtime from Yahoo Finance through yfinance. The working
-portfolio is saved to `portfolio.json` in the project directory and reloaded on the next
-launch.
+The dashboard is deployed to Hugging Face Spaces on the free CPU tier using the Docker SDK.
+See `DEPLOY.md` for the full walkthrough.
+
+Deployment uses a cached data mode, enabled by the `DATA_MODE=cached` environment variable
+that the Dockerfile sets. In this mode the app does not call Yahoo Finance on a page load.
+Instead a background scheduler refreshes the whole ticker universe twice per trading day
+(12:30 and 16:15 US Eastern) and every visitor is served from an in-memory cache, so pages
+load immediately. This matters because yfinance is an unofficial scraper and Yahoo
+rate-limits shared cloud IP addresses aggressively, which would otherwise make a public
+demo unreliable.
+
+The fallback chain is designed so a visitor never sees an empty page: a blocked refresh
+keeps the last good cache, and a cold start loads a price snapshot committed to the
+repository. Run `python build_snapshot.py` once locally to build that snapshot into `data/`
+before deploying.
+
+Locally, `DATA_MODE` is unset and the app fetches live data per request exactly as before.
+
+## Repository contents
+
+- `app.py` - the application
+- `build_snapshot.py` - builds the committed cold-start data snapshot
+- `data/` - the snapshot (`prices.parquet`, `meta.json`), generated by the script above
+- `Dockerfile`, `requirements.txt`, `.dockerignore` - deployment
+- `RUNNING.md` - local setup and troubleshooting
+- `DEPLOY.md` - Hugging Face Spaces deployment guide
 
 ## Limitations
 
-- yfinance is an unofficial interface to Yahoo Finance and can rate-limit requests. This
-  is more likely from shared or cloud IP addresses. A `JSONDecodeError` or empty data
-  almost always means yfinance and curl_cffi are out of date or a temporary rate limit is
-  in effect.
-- The first analytics load fetches per-instrument metadata (sector, country) for every
-  position, which is the main source of startup latency.
-- Estimates are historical and unconditional. The forecast is illustrative and is not
+These are stated plainly rather than hidden; several are inherent to building on free data.
+
+- Historical scenario replays apply current index constituents to past windows, so they
+  carry survivorship bias and will look more resilient than the index did at the time. The
+  interface flags this under the scenario chart.
+- Correlations are estimated over the full window and treated as static. In crises,
+  cross-asset correlations rise and diversification benefits shrink precisely when they are
+  most needed; the risk figures do not capture that regime dependence.
+- Historical sample means remain weak forecasts of future returns even after shrinkage,
+  which is why institutional practice reaches for equilibrium-implied returns
+  (Black-Litterman). That is outside the scope of this build.
+- The optimization is in-sample and applies no transaction costs or turnover limits, so the
+  optimal weights are illustrative rather than directly tradeable.
+- yfinance is an unofficial interface to Yahoo Finance and can rate-limit requests,
+  particularly from cloud IP addresses. A `JSONDecodeError` or empty data usually means
+  yfinance and curl_cffi are out of date or a temporary rate limit is in effect.
+- All figures are historical estimates and the forecast is illustrative. Nothing here is
   investment advice.
-- The app runs Dash in debug mode for local development and is not hardened for public
-  production hosting as it stands.
 
 ## License
 
