@@ -139,10 +139,8 @@ first-run walkthrough, and troubleshooting.
 ## Deployment
 
 The dashboard is deployed to Hugging Face Spaces on the free CPU tier using the Docker SDK.
-See `DEPLOY.md` for the full walkthrough.
 
-Deployment uses a cached data mode, enabled by the `DATA_MODE=cached` environment variable
-that the Dockerfile sets. In this mode the app does not call Yahoo Finance on a page load.
+Deployment uses a cached data mode. In this mode the app does not call Yahoo Finance on a page load.
 Instead a background scheduler refreshes the whole ticker universe twice per trading day
 (12:30 and 16:15 US Eastern) and every visitor is served from an in-memory cache, so pages
 load immediately. This matters because yfinance is an unofficial scraper and Yahoo
@@ -151,12 +149,9 @@ demo unreliable.
 
 The fallback chain is designed so a visitor never sees an empty page: a blocked refresh
 keeps the last good cache, and a cold start loads a price snapshot committed to the
-repository. Run `python build_snapshot.py` once locally to build that snapshot into `data/`
-before deploying.
+repository.
 
-Locally, `DATA_MODE` is unset and the app fetches live data per request exactly as before.
-
-## Repository contents
+## Hugging Face Repository contents
 
 - `app.py` - the application
 - `build_snapshot.py` - builds the committed cold-start data snapshot
@@ -167,7 +162,7 @@ Locally, `DATA_MODE` is unset and the app fetches live data per request exactly 
 
 ## Limitations
 
-These are stated plainly rather than hidden; several are inherent to building on free data.
+These are stated plainly rather than hidden. several are inherent to building on free data.
 
 - Historical scenario replays apply current index constituents to past windows, so they
   carry survivorship bias and will look more resilient than the index did at the time. The
