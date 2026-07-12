@@ -6,15 +6,9 @@ Frontier is a single-file Python application for building a weighted equity port
 S&P 500 large caps and analyzing its risk, return, optimal allocation, and forward-looking
 behavior. The name refers to the efficient frontier at the center of the optimizer.
 
-**Live demo:** add your Hugging Face Space URL here
+**Live demo:** https://huggingface.co/spaces/dpetro05/Frontier
 
-<!--
-DEMO VIDEO
-Delete this comment block, then edit this README on github.com and drag
-dashboard_demo.mp4 into the editor. GitHub uploads the file and inserts an inline
-video player automatically. Markdown image syntax does not work for MP4 files, so
-the drag-and-drop step is required.
--->
+<img width="920" height="486" alt="dashboard_demo" src="https://github.com/user-attachments/assets/06a69f73-7933-4a02-a59b-8a9f3c8ec2a6" />
 
 ## Overview
 
@@ -194,4 +188,4 @@ These are stated plainly rather than hidden; several are inherent to building on
 
 ## License
 
-Add a license of your choice. MIT is a common default for portfolio projects.
+MIT
