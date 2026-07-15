@@ -1,5 +1,9 @@
 # S&P 500 Portfolio Dashboard  (weight-based model)
 
+# Copyright (c) 2026  Demetris Petroudes. All rights reserved.
+# This code is for viewing/demonstration only and may not be reused
+# without explicit permission.
+
 import json, os, warnings, webbrowser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
