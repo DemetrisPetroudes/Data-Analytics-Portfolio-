@@ -181,6 +181,11 @@ These are stated plainly rather than hidden. several are inherent to building on
 - All figures are historical estimates and the forecast is illustrative. Nothing here is
   investment advice.
 
-## License
+## License / Usage
 
-MIT
+Copyright (c) 2026 Demetris Petroudes. All rights reserved.
+
+This project is shared publicly for demonstration and portfolio purposes only.
+
+You may view the code, but you may not copy, modify, distribute, or use it
+in any form—commercial or non-commercial—without my explicit written permission.
